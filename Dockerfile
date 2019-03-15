@@ -50,7 +50,9 @@ RUN git clone https://github.com/dhoelzer/Silky.git \
     && cd Silky && npm install --save \
     && ng build --prod
 
+
+WORKDIR /usr/local/src/Silky
 # Comment out the line below if you want to start the container with a shell
 # Otherwise the container will start Silky on boot
-ENTRYPOINT ["node", "/usr/local/src/Silky/service.js"]
+ENTRYPOINT ["/usr/bin/node", "/usr/local/src/Silky/service.js"]
 
