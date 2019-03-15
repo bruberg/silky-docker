@@ -3,10 +3,12 @@ Docker environment for [Silky](https://github.com/dhoelzer/Silky)
 
 This environment is designed to run in a Docker container on the same server where the SiLK data directory exists, or anywhere else where the SiLK data directory is exposed as a file system.
 
-The Dockerfile will install SiLK on Ubuntu 18:04, as its executable files are required for Silky to run. Consult the [CERT NetSA Security Suite
-Monitoring web site](https://tools.netsa.cert.org/index.html) for updated versions. Then it will install and run Silky.
+The Dockerfile will install SiLK on Ubuntu 18:04, as its executable files are required for Silky to run. Then it will install and run Silky.
 
 ## Useful environment variables
+Your Docker image should use the same versions of the SiLK tools as your live installation. Consult the [CERT NetSA Security Suite
+Monitoring web site](https://tools.netsa.cert.org/index.html) for updated versions.
+
 The Dockerfile accepts the following environment variables, some at build time and fewer at run time:
 
 * FIXBUF  
@@ -22,14 +24,20 @@ The TCP port Silky will listen on (defaults to 3000).
 
 ## Building the image
 This is how to build the image:
-    sudo docker build --build-arg SILKY_PORT=3000 -t silky-docker .
+    sudo docker build \
+    --build-arg FIXBUF=2.2.0 \
+    --build-arg YAF=2.10.0 \
+    --build-arg SILK=3.18.0 \
+    --build-arg SILKDATADIR=/srv/silk/data \
+    --build-arg SILKY_PORT=3000 \
+    -t silky-docker .
 
 ## Starting the container
 This is how the container is started, starting Silky on TCP 3000 and exposing it on the docker host.
     sudo docker run -p 3000:3000 -e SILKY_PORT=3000 --mount type=bind,source=/data,target=/data -it silky-docker
 
 ## Apache reverse proxy configuration
-Because Silky's websocket connections default to port 80, Silky can't simply be run on an arbitrary port. One workaround is to put a reverse HTTP proxy in front. The example below uses a dedicated name for the Silky installation.
+Because Silky's websocket connections default to port 80, Silky can't easily be run on an arbitrary port. One workaround is to place a reverse HTTP proxy in front. The example below, for Apache 2, uses a dedicated virtualhost ("silky.example.com") for the Silky installation.
 
 ```
 <VirtualHost your.ip:80>
