@@ -57,21 +57,28 @@ must equal the SILKDATADIR variable set at build time. In this
 example, the container mounts the local file system's `/data/` into
 the container's `/tmp/data/` directory.
 ```
-sudo docker run -p 5000:5000 -e SILKY_PORT=5000 --mount type=bind,source=/data,target=/tmp/data,readonly -d silky-docker
+sudo docker run \
+  -p 5000:5000 \
+  -e SILKY_PORT=5000 \
+  --mount type=bind,source=/data,target=/tmp/data,readonly \
+  -d silky-docker
 ```
 
 or
 ```
-sudo docker run -p 3001:3001 -e SILKY_PORT=3001 --mount type=bind,source=/srv/silk/data,target=/srv/silk/data,readonly -d silky-docker
+sudo docker run \
+  -p 3001:3001 \
+  -e SILKY_PORT=3001 \
+  --mount type=bind,source=/srv/silk/data,target=/srv/silk/data,readonly \
+  -d silky-docker
 ```
-
 
 ## Apache reverse proxy configuration
 Because Silky's websocket connections default to port 80, Silky can't
 easily be run on an arbitrary port. One workaround is to place a
 reverse HTTP proxy in front. The example below, for Apache 2, uses a
 dedicated virtualhost ("silky.example.com") for the Silky
-installation.
+installation. Note the non-default port of 3001.
 
 ```
 <VirtualHost your.ip:80>
@@ -82,13 +89,13 @@ installation.
 
     ProxyPreserveHost On
     RequestHeader set X-Forwarded-Proto "http"
-    ProxyPass / http://127.0.0.1:3000/ upgrade=ANY
-    ProxyPassReverse / http://127.0.0.1:3000/
+    ProxyPass / http://127.0.0.1:3001/ upgrade=ANY
+    ProxyPassReverse / http://127.0.0.1:3001/
 
     RewriteEngine on
     RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
     RewriteCond %{HTTP:CONNECTION} Upgrade [NC]
-    RewriteRule .* ws://127.0.0.1:3000%{REQUEST_URI} [P]
+    RewriteRule .* ws://127.0.0.1:3001%{REQUEST_URI} [P]
 
 </VirtualHost>
 ```
