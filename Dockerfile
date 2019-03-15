@@ -9,7 +9,7 @@ ARG SILKY_PORT
 ENV FIXBUF ${FIXBUF:-2.2.0}
 ENV YAF ${YAF:-2.10.0}
 ENV SILK ${SILK:-3.18.0}
-ENV SILKDATADIR ${SILKDATADIR:-/srv/silk/data}
+ENV SILKDATADIR ${SILKDATADIR:-/data}
 ENV SILKY_PORT ${SILKY_PORT:-3000}
 
 # Normally we would clean out the apt cache here, but the node installation (who needs wget to run) updates
@@ -30,14 +30,16 @@ RUN export BASEDIR=$(pwd); \
     test -d libfixbuf-${FIXBUF} || tar zxvf libfixbuf-${FIXBUF}.tar.gz; \
     test -d yaf-${YAF} || tar zxvf yaf-${YAF}.tar.gz; \
     test -d silk-${SILK} || tar zxvf silk-${SILK}.tar.gz; \
-    cd ${BASEDIR}/libfixbuf-${FIXBUF}/ && ./configure && make && make install && ldconfig; \
-    cd ${BASEDIR}/yaf-${YAF}/ && ./configure --enable-localtime --enable-applabel --enable-entropy && make && make install && ldconfig; \
-    cd ${BASEDIR}/silk-${SILK} && ./configure --with-libfixbuf=/usr/local/lib/pkgconfig/ --with-python --enable-ipv6 --enable-localtime --enable-data-rootdir=${SILKDATADIR} && make && make install && ldconfig
+    cd ${BASEDIR}/libfixbuf-${FIXBUF}/ && ./configure && make && make install && ldconfig && \
+    cd ${BASEDIR}/yaf-${YAF}/ && ./configure --enable-localtime --enable-applabel --enable-entropy && make && make install && ldconfig && \
+    cd ${BASEDIR}/silk-${SILK} && ./configure --with-libfixbuf=/usr/local/lib/pkgconfig/ --with-python --enable-ipv6 --enable-localtime --enable-data-rootdir=${SILKDATADIR} && make && make install && ldconfig && \
+    rm -rf ${BASEDIR}/libfixbuf-${FIXBUF} ${BASEDIR}/yaf-${YAF} ${BASEDIR}/silk-${SILK}
 
 # The nodesource setup script runs apt-get update for us, so we'd have to clean out the lists again
 # @angular/cli is for installing the 'ng' binary, used to build Silky.
 RUN wget -qO- https://deb.nodesource.com/setup_11.x | bash - \
     && apt-get install -y nodejs \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g @angular/cli
 

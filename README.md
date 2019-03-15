@@ -18,18 +18,18 @@ The version of yaf you wish to build SiLK with.
 * SILK  
 The version of SiLK you wish to build.
 * SILKDATADIR  
-SiLK's data directory (defaults to /srv/silk/data).
+SiLK's data directory (defaults to /data).
 * SILKY_PORT  
 The TCP port Silky will listen on (defaults to 3000).
 
 ## Building the image
-This is how to build the image:
+This is how to build the image, with sample values for all build arguments:
 ```
 sudo docker build \
   --build-arg FIXBUF=2.2.0 \
   --build-arg YAF=2.10.0 \
   --build-arg SILK=3.18.0 \
-  --build-arg SILKDATADIR=/srv/silk/data \
+  --build-arg SILKDATADIR=/tmp/data \
   --build-arg SILKY_PORT=3000 \
   -t silky-docker .
 ```
